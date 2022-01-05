@@ -8,11 +8,13 @@
     "@graphql-tools/links": "^8.2.1",
     "@graphql-tools/stitch": "^8.4.3",
     "@graphql-tools/wrap": "^8.3.2",
+    "apollo-link-context": "^1.0.20",
     "apollo-server-express": "^3.6.1",
     "apollo-upload-client": "^17.0.0",
     "express": "^4.17.2",
     "graphql": "^16.2.0",
     "graphql-upload": "^13.0.0",
+    "lodash": "^4.17.21",
     "node-fetch": "2"
   },
   "devDependencies": {

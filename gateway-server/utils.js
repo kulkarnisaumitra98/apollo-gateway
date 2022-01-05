@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { print } from "graphql";
+import { setContext } from "@apollo/client/link/context";
 import { introspectSchema } from "@graphql-tools/wrap";
 import { stitchSchemas } from "@graphql-tools/stitch";
 import { delegateToSchema } from "@graphql-tools/delegate";
@@ -21,26 +21,38 @@ const linkSchemaDef = `
 `;
 
 export const getRemoteSchema = async (url) => {
-  let executor = async ({ document, variables }) => {
-    const query = print(document);
-    const fetchResult = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, variables }),
-    });
-    return fetchResult.json();
-  };
+  // Fetch our schemas
+  try {
+    const fetcher = createServerHttpLink({ uri: url, fetch });
 
-  if (url === serviceUrls[0]) {
-    executor = linkToExecutor(createServerHttpLink({ uri: url, fetch }));
+    const fetcherWithContext = setContext(async (request, context) => {
+      let headers = {};
+
+      if (
+        context &&
+        context.graphqlContext &&
+        context.graphqlContext.request &&
+        context.graphqlContext.request.headers
+      ) {
+        headers = context.graphqlContext.request.headers;
+        // Need to delete content-type and content-length as there
+        // is mis-match between client request content-length and gateway processed request content-length
+        delete headers["content-type"];
+        delete headers["content-length"];
+      }
+
+      return { headers };
+    }).concat(fetcher);
+
+    const executorVal = linkToExecutor(fetcherWithContext);
+    return {
+      schema: await introspectSchema(executorVal),
+      executor: executorVal,
+    };
+  } catch (e) {
+    console.log(e);
+    return false;
   }
-
-  const schema = {
-    schema: await introspectSchema(executor),
-    executor,
-  };
-
-  return schema;
 };
 
 export const getRemoteSchemas = async () => {

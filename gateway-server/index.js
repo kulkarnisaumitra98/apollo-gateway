@@ -4,12 +4,16 @@ const {
   graphqlUploadExpress, // A Koa implementation is also exported.
 } = require("graphql-upload");
 import { getRemoteSchemas } from "./utils";
+import merge from "lodash/merge";
 
 const main = async () => {
   const mergedSchema = await getRemoteSchemas();
 
   const server = new ApolloServer({
     schema: mergedSchema,
+    context: ({ req }) => {
+      return { request: req };
+    },
   });
 
   await server.start();

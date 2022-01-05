@@ -1,1 +1,6 @@
-huhuhuhu
+Jgfkjdsnfkjhdskfbjksd
+
+"publicKeyPath": "/Users/saumitrakulkarni/DeepIntent/gateway-service/gateway-public.pem",
+"privateKeyPath": "/Users/saumitrakulkarni/DeepIntent/gateway-service/gateway-private.pem"
+
+
